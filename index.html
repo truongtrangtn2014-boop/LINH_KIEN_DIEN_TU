@@ -1,250 +1,197 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ứng dụng AI nhận diện linh kiện điện tử</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest"></script>
+  <title>ỨNG DỤNG AI NHẬN DIỆN LINH KIỆN ĐIỆN TỬ</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.9.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8"></script>
   <script src="data.js"></script>
   <style>
     body {
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: #f2f6ff;
+      font-family: "Segoe UI", sans-serif;
+      background-color: #f4f7fa;
       margin: 0;
       padding: 0;
       text-align: center;
-      color: #222;
     }
-
     header {
-      background: #0066ff;
-      color: white;
-      padding: 15px;
-      border-bottom: 4px solid #004bcc;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 20px;
-    }
-
-    h2 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: normal;
-    }
-
-    main {
-      margin: 15px auto;
-      max-width: 400px;
-      background: white;
-      padding: 15px;
-      border-radius: 15px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-    }
-
-    input, button {
-      font-size: 15px;
-      margin: 5px;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-
-    button {
       background: #007bff;
       color: white;
+      padding: 10px 0;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .container {
+      margin: 15px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 500px;
+    }
+    #webcam-container canvas {
+      border-radius: 12px;
+      border: 2px solid #007bff;
+      width: 100%;
+      height: auto;
+    }
+    input {
+      margin: 5px;
+      padding: 8px;
+      width: 80%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      margin: 8px;
+      padding: 10px 20px;
       border: none;
+      border-radius: 8px;
+      background: #007bff;
+      color: white;
+      font-size: 16px;
       cursor: pointer;
     }
-
     button:hover {
-      background: #005ec2;
+      background: #0056b3;
     }
-
-    #webcam-container {
-      margin-top: 10px;
-    }
-
-    #info-box {
+    .info {
       text-align: left;
       margin-top: 15px;
-      background: #f4f7ff;
-      padding: 10px 15px;
-      border-radius: 10px;
     }
-
-    #quiz-box {
+    .quiz {
       margin-top: 15px;
       text-align: left;
-      background: #eef3ff;
-      padding: 15px;
-      border-radius: 12px;
-    }
-
-    footer {
-      margin-top: 20px;
-      font-size: 13px;
-      color: #666;
     }
   </style>
 </head>
-
 <body>
+
   <header>
-    <h1>ỨNG DỤNG AI NHẬN DIỆN LINH KIỆN ĐIỆN TỬ</h1>
-    <h2>Trường THPT Trần Quốc Tuấn</h2>
+    ỨNG DỤNG AI NHẬN DIỆN LINH KIỆN ĐIỆN TỬ <br>
+    <small>Trường THPT Trần Quốc Tuấn</small>
   </header>
 
-  <main>
+  <div class="container">
     <h3>Nhập thông tin học sinh</h3>
-    <input id="name" placeholder="Họ và tên" style="width: 90%"><br>
-    <input id="class" placeholder="Lớp" style="width: 90%"><br><br>
-
-    <button onclick="init()">📷 Bật camera</button>
-    <button onclick="stopCam()">⏸️ Dừng</button>
-    <button onclick="switchCam()">🔄 Chuyển camera</button>
+    <input type="text" id="studentName" placeholder="Họ và tên">
+    <input type="text" id="studentClass" placeholder="Lớp">
 
     <div id="webcam-container"></div>
-    <div id="label-container" style="margin-top:10px;">Camera chưa bật.</div>
 
-    <div id="info-box">
-      <p><b>Tên linh kiện:</b> <span id="ten">—</span></p>
-      <p><b>Công dụng:</b> <span id="congDung">—</span></p>
-      <p><b>Nguyên lý hoạt động:</b> <span id="nguyenLy">—</span></p>
+    <div>
+      <button onclick="init()">📷 Bật camera</button>
+      <button onclick="stopCamera()">⏹ Dừng</button>
+      <button onclick="switchCamera()">🔄 Chuyển camera</button>
     </div>
-  </main>
 
-  <footer>
+    <div class="info">
+      <p><strong>Tên linh kiện:</strong> <span id="ten"></span></p>
+      <p><strong>Công dụng:</strong> <span id="congdung"></span></p>
+      <p><strong>Nguyên lý hoạt động:</strong> <span id="nguyenly"></span></p>
+    </div>
+
+    <div id="quiz-section" class="quiz"></div>
+  </div>
+
+  <footer style="margin: 20px; font-size: 13px; color: gray;">
     © 2025 Trường THPT Trần Quốc Tuấn — Ứng dụng AI trong dạy học Công nghệ
   </footer>
 
-  <!-- ========== SCRIPT XỬ LÝ CHÍNH ========== -->
   <script>
-    const URL = "https://teachablemachine.withgoogle.com/models/PASTE_YOUR_MODEL_HERE/"; // 🔁 Thay link model của Thầy/Cô
-    let model, webcam, labelContainer, maxPredictions;
-    let flip = true, isRunning = false;
-    let currentLabel = null;
+    const URL = "./my_model/";
+    let model, webcam, maxPredictions;
+    let currentDevice = "";
+    let flip = true;
 
-    // ======= KHỞI TẠO CAMERA =======
     async function init() {
-      if (isRunning) return;
-      isRunning = true;
-
       const modelURL = URL + "model.json";
       const metadataURL = URL + "metadata.json";
-
       model = await tmImage.load(modelURL, metadataURL);
       maxPredictions = model.getTotalClasses();
 
       webcam = new tmImage.Webcam(300, 300, flip);
       await webcam.setup();
       await webcam.play();
-      window.requestAnimationFrame(loop);
-
       document.getElementById("webcam-container").innerHTML = "";
       document.getElementById("webcam-container").appendChild(webcam.canvas);
-      labelContainer = document.getElementById("label-container");
-      labelContainer.innerHTML = "🎥 Camera đang hoạt động...";
+      window.requestAnimationFrame(loop);
     }
 
     async function loop() {
-      if (!isRunning) return;
       webcam.update();
       await predict();
       window.requestAnimationFrame(loop);
     }
 
-    // ======= DỰ ĐOÁN =======
     async function predict() {
       const prediction = await model.predict(webcam.canvas);
-      prediction.sort((a,b)=>b.probability - a.probability);
-      const label = prediction[0].className;
-      const prob = prediction[0].probability * 100;
+      prediction.sort((a, b) => b.probability - a.probability);
+      const result = prediction[0];
 
-      if (prob > 80 && label !== currentLabel) {
-        currentLabel = label;
-        const info = device_data[label];
-        if (info) {
-          document.getElementById("ten").textContent = label;
-          document.getElementById("congDung").textContent = info.cong_dung;
-          document.getElementById("nguyenLy").textContent = info.nguyen_ly;
-          showQuiz(label);
+      if (result.probability > 0.85) {
+        const linhKien = result.className;
+        document.getElementById("ten").innerText = linhKien;
+
+        if (device_data[linhKien]) {
+          document.getElementById("congdung").innerText = device_data[linhKien].cong_dung;
+          document.getElementById("nguyenly").innerText = device_data[linhKien].nguyen_ly;
+
+          if (currentDevice !== linhKien) {
+            currentDevice = linhKien;
+            showQuiz(device_data[linhKien].quiz);
+          }
         }
       }
     }
 
-    // ======= TRẮC NGHIỆM =======
-    function showQuiz(label) {
-      const quizBox = document.createElement("div");
-      quizBox.id = "quiz-box";
-      quizBox.style.marginTop = "15px";
-      const quiz = device_data[label].quiz;
-      let html = `<h3>🧩 Câu hỏi trắc nghiệm</h3>`;
-      quiz.forEach((q, i) => {
-        html += `<p><b>${i+1}. ${q.question}</b></p>`;
-        q.options.forEach(opt => {
-          html += `<label><input type='radio' name='q${i}' value='${opt}'> ${opt}</label><br>`;
-        });
-      });
-      html += `<br><button onclick="submitQuiz('${label}')">📤 Gửi kết quả</button>`;
-      quizBox.innerHTML = html;
-
-      const old = document.getElementById("quiz-box");
-      if (old) old.remove();
-      document.querySelector("main").appendChild(quizBox);
+    function stopCamera() {
+      if (webcam) webcam.stop();
     }
 
-    // ======= NỘP KẾT QUẢ =======
-    function submitQuiz(label) {
-      const name = document.getElementById("name").value.trim();
-      const lop = document.getElementById("class").value.trim();
+    function switchCamera() {
+      flip = !flip;
+      stopCamera();
+      init();
+    }
+
+    function showQuiz(questions) {
+      const quizSection = document.getElementById("quiz-section");
+      quizSection.innerHTML = "<h3>Câu hỏi trắc nghiệm</h3>";
+
+      questions.forEach((q, index) => {
+        let qHTML = `<p><strong>${index + 1}. ${q.question}</strong></p>`;
+        q.options.forEach(opt => {
+          qHTML += `<label><input type='radio' name='q${index}' value='${opt}'> ${opt}</label><br>`;
+        });
+        quizSection.innerHTML += qHTML;
+      });
+
+      quizSection.innerHTML += "<button onclick='submitQuiz()'>📩 Gửi kết quả</button>";
+    }
+
+    function submitQuiz() {
+      const name = document.getElementById("studentName").value.trim();
+      const lop = document.getElementById("studentClass").value.trim();
+
       if (!name || !lop) {
-        alert("Vui lòng nhập họ tên và lớp trước khi làm bài!");
+        alert("Vui lòng nhập họ tên và lớp.");
         return;
       }
 
-      const quiz = device_data[label].quiz;
-      let score = 0;
-      quiz.forEach((q, i) => {
-        const ans = document.querySelector(`input[name='q${i}']:checked`);
-        if (ans && ans.value === q.answer) score++;
-      });
-      const total = quiz.length;
-      const percent = ((score / total) * 100).toFixed(0);
+      const answers = document.querySelectorAll("input[type='radio']:checked");
+      let selected = [];
+      answers.forEach(a => selected.push(a.value));
 
-      alert(`✅ Bạn trả lời đúng ${score}/${total} câu (${percent}%).`);
-      saveToSheet(name, lop, label, percent);
-    }
+      alert("Cảm ơn " + name + " (" + lop + ") đã hoàn thành trắc nghiệm!");
 
-    // ======= GỬI DỮ LIỆU LÊN GOOGLE SHEET =======
-    function saveToSheet(name, lop, linhkien, percent) {
-      const scriptURL = "https://script.google.com/macros/s/PASTE_YOUR_SCRIPT_ID_HERE/exec"; // 🔁 Thay link script
-      const data = new FormData();
-      data.append("name", name);
-      data.append("class", lop);
-      data.append("linhkien", linhkien);
-      data.append("score", percent);
-
-      fetch(scriptURL, { method: "POST", body: data })
-        .then(() => alert("📊 Kết quả đã gửi lên Google Sheet!"))
-        .catch(() => alert("⚠️ Không gửi được kết quả, vui lòng kiểm tra lại."));
-    }
-
-    // ======= DỪNG CAMERA =======
-    function stopCam() {
-      if (webcam && isRunning) {
-        webcam.stop();
-        isRunning = false;
-        document.getElementById("label-container").innerText = "⏸️ Camera đã dừng.";
-      }
-    }
-
-    async function switchCam() {
-      flip = !flip;
-      stopCam();
-      await init();
+      // Gửi dữ liệu lên Google Sheet (nếu có)
+      // fetch('https://script.google.com/macros/s/XXXX/exec', {
+      //   method: 'POST',
+      //   body: JSON.stringify({ name, lop, device: currentDevice, answers: selected })
+      // });
     }
   </script>
 </body>
